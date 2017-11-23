@@ -1,0 +1,92 @@
+@import url('../../../atoms/timer/less/timer.less');
+
+/* Declaration of constant sytles */
+@primary-font-color: #4e4c4c;
+@game-border: solid 2px #b0b0b0;
+
+@shaded-box-color: #ff3823;
+@shaded-box-border:solid 3px #6b6060;
+
+@spacing-large: 30px 0;
+@spacing-medium: 20px 0;
+
+.box-game {
+	margin: 10px 0;
+
+
+	&__headline {
+		text-align: center;
+		color: @primary-font-color;
+		padding: @spacing-large 0;
+	}
+
+	&__table, &__info-bar {
+		min-width: 300px;
+		padding: @spacing-medium;
+		width: 60%;
+		margin: 0 auto;
+	}
+
+	&__table-container {
+		position: relative;
+		margin: 0 auto;
+		width: 100%;
+
+		&--end-game {
+			&:before {
+				content: "";
+				left: 0;
+				top: 0;
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(127, 118, 118, 0.4);
+			}
+		}
+	}
+
+	&__table {
+		min-height: 300px;
+	}
+
+	&__button {
+		vertical-align: middle;
+	}
+
+	&__notification-bar {
+		background: #f4f3f3;
+		width: 100%;
+		z-index: 7;
+		position: absolute;
+		box-shadow: 1px 5px 6px 3px #858181;
+		left: 0;
+		top: 50%;
+		padding: @spacing-medium;
+		display: none;
+
+		.box-game__table-container--end-game & {
+			display: block;
+		}
+	}
+
+	&__notification-text {
+		font-size: 20px;
+		&--success {
+			color: green;
+		}
+		&--failure {
+			color: red;
+		}
+	}
+
+	&__box {
+		border: @game-border;
+		cursor: pointer;
+		width: 80px;
+		height: 80px;
+		&--colored {
+			background-color: @shaded-box-color;
+			border: @shaded-box-border;
+		}
+	}
+}

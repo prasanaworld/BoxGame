@@ -1,0 +1,42 @@
+{
+  "name": "Box-Game",
+  "version": "1.0.0",
+  "author": "Prasana Kannan",
+  "license": "MIT",
+  "description": "Box Games simple UI using React",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/webpack-dev-server --hot --inline --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prasanaworld/BoxGame.git"
+  },
+  "keywords": [
+    "react",
+    "less",
+    "ui",
+    "webpack",
+    "es6",
+    "jsx"
+  ],
+  "homepage": "https://github.com/prasanaworld/BoxGame",
+  "dependencies": {
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.2",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "bootstrap": "^3.3.7",
+    "css-loader": "^0.23.1",
+    "file-loader": "^0.8.5",
+    "jquery": "^3.2.1",
+    "less": "^2.6.0",
+    "less-loader": "^2.2.2",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-hot-loader": "^1.3.0",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.13",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
