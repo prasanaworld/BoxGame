@@ -25,7 +25,7 @@ module.exports = {
         test: /\.html$/,
         loader: 'file?name=[name].[ext]'
       }
-    ]          
+    ]
   },
   resolve : {
     extensions: ['', '.js', '.jsx', '.es6'],

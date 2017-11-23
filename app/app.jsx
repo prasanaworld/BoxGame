@@ -5,13 +5,14 @@ import $ from "jquery";
 /* Core game organims included*/
 import BoxGame from './game_components/organisms/box-game';
 import styles from './app.less';
+import AppContent from './content/content';
 
 class App extends Component {
   render() {
     return (
       <div className="app">
         <div className="container">
-          <BoxGame />
+          <BoxGame {...AppContent} />
         </div>
       </div>
     );
@@ -20,5 +21,6 @@ class App extends Component {
 
 ReactDOM.render(
   <App/>,
-	document.getElementById('app'), null
+	document.getElementById('app'),
+  null
 );
