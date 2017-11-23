@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import $ from "jquery";
 
+/* Core game organims included*/
 import BoxGame from './game_components/organisms/box-game';
-
 import styles from './app.less';
 
 class App extends Component {

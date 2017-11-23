@@ -10,3 +10,11 @@
 - `npm install`
 - `npm start`
 - `Navigate to  http://localhost:8080/ in the browser`
+
+## Screenshots
+  - Game mode
+  ![Gameplay](https://github.com/prasanaworld/BoxGame/blob/master/screenshots/gameplay.png)
+  - Winning Mode
+  ![Win](https://github.com/prasanaworld/BoxGame/blob/master/screenshots/Win.png)
+  - Try Again
+  ![try again](https://github.com/prasanaworld/BoxGame/blob/master/screenshots/lose.png)
