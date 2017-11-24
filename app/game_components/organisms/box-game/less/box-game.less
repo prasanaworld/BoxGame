@@ -4,15 +4,41 @@
 @primary-font-color: #4e4c4c;
 @game-border: solid 2px #b0b0b0;
 
+@box-size: 80px;
 @shaded-box-color: #ff3823;
 @shaded-box-border:solid 3px #6b6060;
 
 @spacing-large: 30px 0;
 @spacing-medium: 20px 0;
 
+@notification-background: #f4f3f3;
+@notification-success-text: #38e61f;
+@notification-failure-text: #cb1717;
+
+@chances-color: #f40636;
+@chances-faded-color: #fff;
+@chances-heart-size: 20px;
+@chances-heart-postion: (@chances-heart-size - 8);
+
+/* mixins declaration */
+.border-radius (@radius: 5px) {
+    -webkit-border-radius: @radius;
+    -moz-border-radius: @radius;
+    border-radius: @radius;
+    -moz-background-clip: padding;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+.transform(@arguments) {
+    -webkit-transform: @arguments;
+    -moz-transform: @arguments;
+    -ms-transform: @arguments;
+    transform: @arguments;
+}
+
 .box-game {
 	margin: 10px 0;
-
 
 	&__headline {
 		text-align: center;
@@ -53,10 +79,46 @@
 		vertical-align: middle;
 	}
 
+	&__chances {
+	  position: relative;
+    display:inline-block;
+    margin: 0 15px 0;
+	  width: @chances-heart-size;
+	  height: @chances-heart-size;
+    background-color: @chances-faded-color;
+		.transform(rotate(45deg));
+
+    &:before, &:after {
+			content: '';
+			position: absolute;
+		  width: @chances-heart-size;
+		  height: @chances-heart-size;
+      background-color: @chances-faded-color;
+			.border-radius(50%);
+		}
+
+		&:before {
+			bottom: 0px;
+		 left: -(@chances-heart-postion);
+		}
+
+		&:after {
+			top: -(@chances-heart-postion);
+			right: 0px;
+		}
+
+		&--lost {
+			background-color: @chances-color;
+			&:before, &:after {
+				background-color: @chances-color;
+			}
+		}
+	}
+
 	&__notification-bar {
-		background: #f4f3f3;
+		background: @notification-background;
 		width: 100%;
-		z-index: 7;
+		z-index: 3;
 		position: absolute;
 		box-shadow: 1px 5px 6px 3px #858181;
 		left: 0;
@@ -72,18 +134,18 @@
 	&__notification-text {
 		font-size: 20px;
 		&--success {
-			color: green;
+			color: @notification-success-text;
 		}
 		&--failure {
-			color: red;
+			color: @notification-failure-text;
 		}
 	}
 
 	&__box {
 		border: @game-border;
+		width: @box-size;
+		height: @box-size;
 		cursor: pointer;
-		width: 80px;
-		height: 80px;
 		&--colored {
 			background-color: @shaded-box-color;
 			border: @shaded-box-border;

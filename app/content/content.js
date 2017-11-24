@@ -1,6 +1,7 @@
 export default {
 	"config": {
-		"id": "box-game"
+		"id": "my-boxgame",
+		chances: 3,
 	},
 	"content": {
 		"headline": {
@@ -9,6 +10,9 @@ export default {
 		"infoButton": {
 			"startButton": {
 				"text": "Start Game"
+			},
+			"PlayAgainButton": {
+				"text": "Try Again"
 			},
 			"restartButton": {
 				"text": "Restart Game"
@@ -19,7 +23,10 @@ export default {
 				"text": "Hurrey, You just won the game. Click Restart to play again."
 			},
 			"failure": {
-				"text": "Come dude, let's try one more time. Click Restart to play again."
+				"text": "Oh No, lets start all over again."
+			},
+			"loseLife": {
+				"text": "Come dude, let's try one more time. Click Try again"
 			}
 		},
 		"timer": {
@@ -34,5 +41,5 @@ export default {
 			"highlightCount": 5
 		}
 	},
-	"className": "mybox-game"
+	"className": "my-custombox-game"
 }

@@ -6,79 +6,112 @@ const ORGANISM_NAME = 'box-game';
 const DEFAULT_BOX_COUNT = 25;
 const DEFAULT_BOX_PER_ROW = 5;
 const DEFAULT_HIGHLIGHT_ROW = 5;
+const DEFAULT_CHANCES = 3;
 const GAME_STATUS_CODE = {
-		PLAY: 0,
-		SUCCESS: 1,
-		FAILED: 2,
+		INACTIVE: 0,
+		PLAY: 1,
+		SUCCESS: 2,
+		FAILED: 3,
+		GAMEOVER: 4,
 };
 export default class BoxGame extends Component {
 	constructor(props) {
 		super(props);
+
+		const {
+			config: {
+				chances = DEFAULT_CHANCES
+			} = {},
+		} = props;
+
+		this.chances = chances;
 		this.state = {
-			startGame: false,
-			endGame: GAME_STATUS_CODE.PLAY,
+			gameStatus: GAME_STATUS_CODE.INACTIVE,
+			chances: this.chances,
 			ShadedBox: {},
 		};
 
 		this.handleBox = this.handleBox.bind(this);
+		this.handleTimeout = this.handleTimeout.bind(this);
 		this.handleStartButton = this.handleStartButton.bind(this);
 		this.handleRestartButton = this.handleRestartButton.bind(this);
-		this.handleTimeout = this.handleTimeout.bind(this);
+		this.handlePlayAgainButton = this.handlePlayAgainButton.bind(this);
+	}
+
+	checkGameCompletionStatus() {
+		if (Object.keys(this.state.ShadedBox).length === 0) {
+			this.setState({
+				gameStatus: GAME_STATUS_CODE.SUCCESS,
+			});
+		}
 	}
 
 	handleBox(count) {
-		if (this.state.startGame) {
-				const {
+		const {
+			gameStatus,
+			ShadedBox,
+		} = this.state;
+		if (gameStatus === GAME_STATUS_CODE.PLAY) {
+			if (ShadedBox[count]) {
+				delete ShadedBox[count];
+			} else {
+				ShadedBox[count] = true;
+			}
+			this.setState({
 					ShadedBox,
-				} = this.state;
-				if (ShadedBox[count]) {
-					delete ShadedBox[count];
-				} else {
-					ShadedBox[count] = true;
-				}
-				this.setState({
-					ShadedBox,
-				}, () => {
-					const {
-						ShadedBox,
-					} = this.state;
-					if (Object.keys(ShadedBox).length === 0) {
-						this.setState({
-							startGame: false,
-							endGame: GAME_STATUS_CODE.SUCCESS,
-						})
-					}
-				});
+				},
+				this.checkGameCompletionStatus
+			);
 		}
 	}
 
 	handleStartButton() {
-		if (!this.state.startGame) {
+		if (this.state.gameStatus === GAME_STATUS_CODE.INACTIVE) {
 			const ShadedBox = this.getRandomBox(this.boxCount, this.highlightCount);
 			this.setState({
-					startGame: true,
-					ShadedBox,
+				ShadedBox,
+				gameStatus: GAME_STATUS_CODE.PLAY,
 			});
 		}
 	}
 
 	handleRestartButton() {
-		if(this.state.endGame) {
+		if(this.state.gameStatus) {
 			const ShadedBox = this.getRandomBox(this.boxCount, this.highlightCount);
 			this.setState({
-				startGame: true,
-				endGame: GAME_STATUS_CODE.PLAY,
 				ShadedBox,
+				chances: DEFAULT_CHANCES,
+				gameStatus: GAME_STATUS_CODE.PLAY,
+			})
+		}
+	}
+
+	handlePlayAgainButton() {
+		const {
+			gameStatus,
+			chances,
+			ShadedBox,
+		} = this.state;
+		if (gameStatus === GAME_STATUS_CODE.FAILED) {
+			const ShadedBox = this.getRandomBox(this.boxCount, this.highlightCount);
+			this.setState({
+				ShadedBox,
+				gameStatus: GAME_STATUS_CODE.PLAY,
 			})
 		}
 	}
 
 	handleTimeout() {
-		if (!this.state.endGame) {
+		const {
+			gameStatus,
+			chances
+		} = this.state;
+		if (gameStatus === GAME_STATUS_CODE.PLAY) {
+			const newChances = chances - 1;
 			this.setState({
-				startGame: false,
-				endGame: GAME_STATUS_CODE.FAILED,
-			})
+				chances: newChances,
+				gameStatus: (newChances > 0)? GAME_STATUS_CODE.FAILED: GAME_STATUS_CODE.GAMEOVER,
+			});
 		}
 	}
 
@@ -95,7 +128,7 @@ export default class BoxGame extends Component {
 	}
 
 	renderTimer(timer) {
-		if (this.state.startGame) {
+		if (this.state.gameStatus === GAME_STATUS_CODE.PLAY) {
 			return (
 				<Timer
 					{...timer}
@@ -106,45 +139,88 @@ export default class BoxGame extends Component {
 		return null;
 	}
 
-	renderStartButton({ startButton, restartButton } = {}) {
-		if (!this.state.endGame) {
+	renderChancesLeft() {
+		if (this.state.gameStatus >= GAME_STATUS_CODE.PLAY) {
+			const Lifes = [];
+			for (let chances=0; chances < this.chances; chances++) {
+				const isChancesLost = chances < this.state.chances ? `${ORGANISM_NAME}__chances--lost`: '';
+				Lifes.push(
+					<span
+						className={`${ORGANISM_NAME}__chances ${isChancesLost}`}
+						key={`${ORGANISM_NAME}__chances-${chances}`}
+					/>
+				);
+			}
+
+			console.log(Lifes.length);
+			return(
+				<div className={`${ORGANISM_NAME}__chances-container`}>
+					{Lifes}
+				</div>
+			);
+		}
+		return null;
+	}
+
+	renderStatusButtons({ startButton, restartButton, PlayAgainButton} = {}) {
+		const {
+			 gameStatus,
+			 chances,
+		} = this.state;
+		if (gameStatus === GAME_STATUS_CODE.SUCCESS || gameStatus === GAME_STATUS_CODE.GAMEOVER)  {
+			return (
+				<button
+					className={`btn btn-default btn-warning ${ORGANISM_NAME}__button ${ORGANISM_NAME}__button--restart`}
+					onClick={this.handleRestartButton}
+					>
+						{restartButton.text}
+					</button>
+				);
+			} else if (gameStatus === GAME_STATUS_CODE.FAILED && chances > 0) {
+				return (
+					<button
+						className={`btn btn-default btn-warning ${ORGANISM_NAME}__button ${ORGANISM_NAME}__button--try`}
+						onClick={this.handlePlayAgainButton}
+					>
+						{PlayAgainButton.text}
+					</button>
+				);
+			}
 			return (
 				<button
 					className={`btn btn-default btn-success ${ORGANISM_NAME}__button ${ORGANISM_NAME}__button--start`}
 					onClick={this.handleStartButton}
-					disabled={this.state.startGame}
+					disabled={gameStatus === GAME_STATUS_CODE.PLAY}
 				>
 					{startButton.text}
 				</button>
 			);
-		}
-		return (
-			<button
-				className={`btn btn-default btn-warning ${ORGANISM_NAME}__button ${ORGANISM_NAME}__button--restart`}
-				onClick={this.handleRestartButton}
-			>
-				{restartButton.text}
-			</button>
-		);
 	}
 
-	renderNotification({ success, failure} = {}) {
+	renderNotification({ success, failure, loseLife} = {}) {
 		const {
-			endGame,
+			gameStatus,
 		} = this.state;
-		if (endGame) {
-			if (endGame === GAME_STATUS_CODE.SUCCESS) {
+		if (gameStatus) {
+			if (gameStatus === GAME_STATUS_CODE.SUCCESS) {
 				return (
 					<p
 						className={`${ORGANISM_NAME}__notification-text ${ORGANISM_NAME}__notification-text--success`}
 						dangerouslySetInnerHTML={{ __html: success.text }}
 					/>
 				);
-			} else if (endGame === GAME_STATUS_CODE.FAILED) {
+			} else if (gameStatus === GAME_STATUS_CODE.GAMEOVER) {
 				return (
 					<p
 						className={`${ORGANISM_NAME}__notification-text ${ORGANISM_NAME}__notification-text--failure`}
 						dangerouslySetInnerHTML={{ __html: failure.text }}
+					/>
+				);
+			} else if (gameStatus === GAME_STATUS_CODE.FAILED) {
+				return (
+					<p
+						className={`${ORGANISM_NAME}__notification-text ${ORGANISM_NAME}__notification-text--failure`}
+						dangerouslySetInnerHTML={{ __html: loseLife.text }}
 					/>
 				);
 			}
@@ -226,7 +302,8 @@ export default class BoxGame extends Component {
 			className = "",
 		} = this.props;
 
-		const isGameEnded = this.state.endGame ? `${ORGANISM_NAME}__table-container--end-game` : '';
+		const isGameEnded = (this.state.gameStatus > GAME_STATUS_CODE.PLAY) ?
+					`${ORGANISM_NAME}__table-container--end-game` : '';
 
 		return (
 			<section
@@ -239,11 +316,14 @@ export default class BoxGame extends Component {
 						{this.renderHeadline(headline)}
 				</div>
 				<div className={`${ORGANISM_NAME}__info-bar row`}>
-						<div className="text-left col-lg-6 col-md-6 col-sm-6 col-xs-12">
+						<div className="text-left col-lg-4 col-md-4 col-sm-4 col-xs-12">
 							{this.renderTimer(timer)}
 						</div>
-						<div className="text-right col-lg-6 col-md-6 col-sm-6 col-xs-12">
-								{this.renderStartButton(infoButton)}
+						<div className="text-left col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							{this.renderChancesLeft()}
+						</div>
+						<div className="text-right col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								{this.renderStatusButtons(infoButton)}
 						</div>
 				</div>
 
@@ -263,28 +343,35 @@ export default class BoxGame extends Component {
 BoxGame.propTypes = {
 	config: PropTypes.shape({
 		id: PropTypes.string,
+		chances: PropTypes.number,
 	}),
 	content: PropTypes.shape({
 		headline: PropTypes.shape({
-			text: PropTypes.string,
-		}),
-		infoButton: {
+			text: PropTypes.string.isRequired,
+		}).isRequired,
+		infoButton: PropTypes.shape({
 			startButton: PropTypes.shape({
-				text: PropTypes.string,
-			}),
+				text: PropTypes.string.isRequired,
+			}).isRequired,
+			PlayAgainButton: PropTypes.shape({
+				text: PropTypes.string.isRequired,
+			}).isRequired,
 			restartButton: PropTypes.shape({
-				text: PropTypes.string,
-			}),
-		},
-		notification: {
+				text: PropTypes.string.isRequired,
+			}).isRequired,
+		}).isRequired,
+		notification: PropTypes.shape({
 			success: PropTypes.shape({
 				text: PropTypes.string,
 			}),
 			failure: PropTypes.shape({
 				text: PropTypes.string,
 			}),
-		},
-		timer: PropTypes.shape(Timer.propTypes),
+			loseLife: PropTypes.shape({
+				text: PropTypes.string,
+			}),
+		}).isRequired,
+		timer: PropTypes.shape(Timer.propTypes).isRequired,
 		box: PropTypes.shape({
 			boxCount: PropTypes.number,
 			boxPerRow: PropTypes.number,
@@ -304,10 +391,13 @@ BoxGame.defaultProps = {
 			},
 			infoButton: {
 				startButton: {
-					text: "Start"
+					text: "Start Game"
+				},
+				PlayAgainButton: {
+					text: "Try Again"
 				},
 				restartButton: {
-					text: "Restart"
+					text: "Restart Game"
 				},
 			},
 			notification: {
@@ -315,11 +405,14 @@ BoxGame.defaultProps = {
 					text: "Hurrey, You just won the game. Click Restart to play again."
 				},
 				failure: {
-					text: "Come dude, let's try one more time. Click Restart to play again."
+					text: "Oh No, lets start all over again."
 				},
+				loseLife: {
+					text: "Come dude, let's try one more time. Click Try again"
+				}
 			},
 			timer: {
-				count: 5000,
+				count: 25000,
 				prefixText: "Time left",
 			  formattedText: "Seconds",
 			  className: "defualt-timer",
